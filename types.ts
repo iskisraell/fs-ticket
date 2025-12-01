@@ -2,6 +2,10 @@ export interface ChecklistItem {
   label: string;
   value: boolean; // true = issue present, false = ok
   key: string;
+  photos?: {
+    before?: string;
+    after?: string;
+  };
 }
 
 export interface ChecklistGroup {
@@ -24,6 +28,7 @@ export interface Ticket {
   sla: string;
   openDate: string;
   technician: string;
+  initialPhoto?: string; // Explicit initial photo URL
   location: {
     address: string;
     district: string;

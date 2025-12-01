@@ -49,32 +49,52 @@ export const ChecklistGroup: React.FC<Props> = ({ group, ticketStatus, onToggleI
                 {item.value && (
                   <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300 print:mt-2 print:gap-4 print:grid-cols-2">
 
-                    {/* Ocorrência Placeholder */}
+                    {/* Ocorrência Placeholder or Image */}
                     <div className="relative group">
                       <div className="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-gray-400 uppercase tracking-wider z-10 print:bg-transparent print:text-brand-orange">
                         Ocorrência (Antes)
                       </div>
-                      <div className="aspect-[16/9] bg-white rounded-lg border-2 border-dashed border-gray-300 hover:border-brand-orange hover:bg-orange-50/20 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 text-gray-400 hover:text-brand-orange print:border-brand-orange print:h-auto print:aspect-[16/9] print:border-1">
-                        <Camera size={24} strokeWidth={1.5} className="print:w-4 print:h-4" />
-                        <span className="text-xs font-medium print:hidden">Adicionar Foto</span>
-                      </div>
+                      {item.photos?.before ? (
+                        <div className="aspect-[16/9] bg-gray-100 rounded-lg overflow-hidden border border-gray-200 shadow-sm print:border-brand-orange print:h-auto print:aspect-[16/9] print:border-1">
+                          <img
+                            src={item.photos.before}
+                            alt={`Ocorrência - ${item.label}`}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+                      ) : (
+                        <div className="aspect-[16/9] bg-white rounded-lg border-2 border-dashed border-gray-300 hover:border-brand-orange hover:bg-orange-50/20 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 text-gray-400 hover:text-brand-orange print:border-brand-orange print:h-auto print:aspect-[16/9] print:border-1">
+                          <Camera size={24} strokeWidth={1.5} className="print:w-4 print:h-4" />
+                          <span className="text-xs font-medium print:hidden">Adicionar Foto</span>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Solução Placeholder */}
+                    {/* Solução Placeholder or Image */}
                     {showCorrection && (
                       <div className="relative group">
                         <div className="absolute -top-2.5 left-3 px-1.5 bg-white text-[10px] font-bold text-gray-400 uppercase tracking-wider z-10 print:bg-transparent print:text-brand-green">
                           Correção (Depois)
                         </div>
-                        {isConcluded ? (
-                          <div className="aspect-[16/9] bg-white rounded-lg border-2 border-dashed border-gray-300 hover:border-brand-green hover:bg-green-50/20 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 text-gray-400 hover:text-brand-green print:border-brand-green print:h-auto print:aspect-[16/9] print:border-1">
-                            <ImagePlus size={24} strokeWidth={1.5} className="print:w-4 print:h-4" />
-                            <span className="text-xs font-medium print:hidden">Adicionar Foto</span>
+                        {item.photos?.after ? (
+                          <div className="aspect-[16/9] bg-gray-100 rounded-lg overflow-hidden border border-gray-200 shadow-sm print:border-brand-green print:h-auto print:aspect-[16/9] print:border-1">
+                            <img
+                              src={item.photos.after}
+                              alt={`Correção - ${item.label}`}
+                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                            />
                           </div>
                         ) : (
-                          <div className="aspect-[16/9] bg-gray-100 rounded-lg border border-gray-200 flex flex-col items-center justify-center gap-1 text-gray-400 select-none print:h-auto print:aspect-[16/9]">
-                            <span className="text-xs font-medium">Aguardando</span>
-                          </div>
+                          isConcluded ? (
+                            <div className="aspect-[16/9] bg-white rounded-lg border-2 border-dashed border-gray-300 hover:border-brand-green hover:bg-green-50/20 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 text-gray-400 hover:text-brand-green print:border-brand-green print:h-auto print:aspect-[16/9] print:border-1">
+                              <ImagePlus size={24} strokeWidth={1.5} className="print:w-4 print:h-4" />
+                              <span className="text-xs font-medium print:hidden">Adicionar Foto</span>
+                            </div>
+                          ) : (
+                            <div className="aspect-[16/9] bg-gray-100 rounded-lg border border-gray-200 flex flex-col items-center justify-center gap-1 text-gray-400 select-none print:h-auto print:aspect-[16/9]">
+                              <span className="text-xs font-medium">Aguardando</span>
+                            </div>
+                          )
                         )}
                       </div>
                     )}

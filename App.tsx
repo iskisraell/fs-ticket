@@ -132,7 +132,7 @@ export default function App() {
           {/* Reference Photo */}
           <div className="relative rounded-brand overflow-hidden shadow-brand border border-gray-200 group bg-gray-900">
             <img
-              src={activeTicket.photos.before[0]?.url || 'https://placehold.co/600x400?text=Sem+Foto'}
+              src={activeTicket.initialPhoto || activeTicket.photos.before[0]?.url || 'https://placehold.co/600x400?text=Sem+Foto'}
               alt="Referência do Ativo"
               className="w-full h-full object-cover opacity-90 print:opacity-100"
             />

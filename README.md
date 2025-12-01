@@ -22,6 +22,7 @@ interface Ticket {
   sla: string;            // Tempo de SLA (ex: "00h:48m")
   openDate: string;       // Data de abertura (ex: "26/11/2025 13:33")
   technician: string;     // Nome do técnico
+  initialPhoto?: string;  // Foto inicial/capa do relatório (IMPORTANTE)
   location: {
     address: string;      // Endereço completo
     district: string;     // Bairro
@@ -59,6 +60,10 @@ interface Ticket {
   key: string;    // Chave única do item (ex: "ELETRICA_FIACAO_EXPOSTA")
   label: string;  // Texto exibido (ex: "Fiação Exposta")
   value: boolean; // true = problema identificado, false = ok
+  photos?: {      // Fotos específicas do item (Opcional)
+    before?: string; // URL da foto da ocorrência
+    after?: string;  // URL da foto da correção
+  };
 }
 ```
 
@@ -85,10 +90,12 @@ Para alimentar o sistema a partir de uma planilha Excel ou CSV, recomenda-se o s
 | **Tipo** | `type` | Abrigo |
 | **Data Abertura** | `openDate` | 26/11/2025 13:33 |
 | **Técnico** | `technician` | Matheus Menezes |
+| **Foto Inicial** | `initialPhoto` | https://.../capa.jpg |
 | **Endereço** | `location.address` | Estr. do Campo Limpo, 1710 |
 | **Latitude** | `location.lat` | -23.6491 |
 | **Longitude** | `location.lng` | -46.7642 |
 | **Checklist - [Item]** | `checklist[...].items[...].value` | SIM / NÃO (Converter para boolean) |
+| **Foto Item [Item]** | `checklist[...].items[...].photos.before` | https://.../item_foto.jpg |
 | **Foto Antes 1** | `photos.before[0].url` | https://.../foto1.jpg |
 
 ### Exemplo de Payload JSON Completo
@@ -103,6 +110,7 @@ Para alimentar o sistema a partir de uma planilha Excel ou CSV, recomenda-se o s
   "sla": "00h:48m",
   "openDate": "26/11/2025 13:33",
   "technician": "Matheus Menezes",
+  "initialPhoto": "https://picsum.photos/400/300?random=1",
   "location": {
     "address": "Estr. do Campo Limpo, 1710",
     "district": "Jardim Piracuama",
@@ -121,7 +129,14 @@ Para alimentar o sistema a partir de uma planilha Excel ou CSV, recomenda-se o s
       "title": "Elétrica",
       "items": [
         { "key": "ELETRICA_FIACAO_EXPOSTA", "label": "Fiação Exposta", "value": false },
-        { "key": "ELETRICA_LUMINARIA_DANIFICADA", "label": "Luminária Danificada", "value": true }
+        { 
+          "key": "ELETRICA_LUMINARIA_DANIFICADA", 
+          "label": "Luminária Danificada", 
+          "value": true,
+          "photos": {
+            "before": "https://picsum.photos/400/300?random=101"
+          }
+        }
       ]
     }
   ],

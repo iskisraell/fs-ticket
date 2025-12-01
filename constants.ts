@@ -11,6 +11,7 @@ const TICKET_ABRIGO: Ticket = {
   sla: '00h:48m',
   openDate: '26/11/2025 13:33',
   technician: 'Matheus Menezes',
+  initialPhoto: 'https://picsum.photos/400/300?random=1',
   location: {
     address: 'Estr. do Campo Limpo, 1710',
     district: 'Jardim Piracuama',
@@ -63,7 +64,15 @@ const TICKET_ABRIGO: Ticket = {
       title: 'Estrutura Abrigo',
       items: [
         { key: 'ESTRUTURA_ASSENTO_DESNIVEL', label: 'Assento com Desnível', value: false },
-        { key: 'ESTRUTURA_BANCO_PICHADO', label: 'Banco Pichado', value: true },
+        {
+          key: 'ESTRUTURA_BANCO_PICHADO',
+          label: 'Banco Pichado',
+          value: true,
+          photos: {
+            before: 'https://picsum.photos/400/300?random=101',
+            after: 'https://picsum.photos/400/300?random=102'
+          }
+        },
         { key: 'ESTRUTURA_BANCO_QUEBRADO', label: 'Banco Quebrado', value: false },
         { key: 'ESTRUTURA_BASE_FERRUGEM', label: 'Base do Assento com Ferrugem', value: false },
         { key: 'ESTRUTURA_COLAGEM', label: 'Colagem', value: true },
@@ -161,6 +170,7 @@ const TICKET_TOTEM: Ticket = {
   sla: '462h:51m',
   openDate: '02/10/2025 09:13',
   technician: 'Felipe Pereira da Silva',
+  initialPhoto: 'https://picsum.photos/400/300?random=10',
   location: {
     address: 'Rua Americo Brasiliense, 1966',
     district: 'Santo Amaro',
@@ -181,7 +191,14 @@ const TICKET_TOTEM: Ticket = {
         { key: 'TOTEM_ABAIXO_PERMITIDO', label: 'Abaixo do Permitido', value: false },
         { key: 'TOTEM_ACIMA_PERMITIDO', label: 'Acima do Permitido', value: false },
         { key: 'TOTEM_COM_COLAGEM', label: 'Com Colagem', value: false },
-        { key: 'TOTEM_COM_FERRUGEM', label: 'Com Ferrugem', value: true },
+        {
+          key: 'TOTEM_COM_FERRUGEM',
+          label: 'Com Ferrugem',
+          value: true,
+          photos: {
+            before: 'https://picsum.photos/400/300?random=103'
+          }
+        },
         { key: 'TOTEM_INCLINADO_BASE', label: 'Inclinado/Base Danificada', value: false },
         { key: 'TOTEM_INEXISTENTE_SUPRIMIDO', label: 'Inexistente/Suprimido', value: false },
         { key: 'TOTEM_PICHACAO', label: 'Pichação', value: false },
