@@ -134,7 +134,8 @@ Para alimentar o sistema a partir de uma planilha Excel ou CSV, recomenda-se o s
           "label": "Luminária Danificada", 
           "value": true,
           "photos": {
-            "before": "https://picsum.photos/400/300?random=101"
+            "before": "https://picsum.photos/400/300?random=101",
+            "after": "https://picsum.photos/400/300?random=102"
           }
         }
       ]
