@@ -1,0 +1,5 @@
+{
+  "name": "Eletromidia FieldService Viewer",
+  "description": "A digital twin interface for field service tickets, visualizing maintenance data for Shelter (Abrigo) and Totem assets with high-fidelity UI.",
+  "requestFramePermissions": []
+}

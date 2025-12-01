@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eletromidia FieldService</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
+    rel="stylesheet">
+  <link rel="icon" href="https://i.ibb.co/WpHG5C25/OPEC-T1-OPEC-T.png" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              orange: '#FF4F00',
+              black: '#000000',
+              cream: '#F9F2E7',
+              purple: '#4E18FF',
+              yellow: '#FECC14',
+              green: '#3D7700',
+              gray: '#F3F4F6',
+            }
+          },
+          fontFamily: {
+            sans: ['"Rethink Sans"', 'sans-serif'],
+          },
+          borderRadius: {
+            'brand': '20px',
+            'btn': '12px',
+          },
+          boxShadow: {
+            'brand': '0 2px 8px rgba(0, 0, 0, 0.05)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Checkbox adhering to Design System sharpness */
+    input[type="checkbox"] {
+      appearance: none;
+      background-color: #fff;
+      margin: 0;
+      font: inherit;
+      color: currentColor;
+      width: 1.25em;
+      height: 1.25em;
+      border: 1.5px solid #d1d5db;
+      border-radius: 4px;
+      /* Iconography rule: 4px radius */
+      display: grid;
+      place-content: center;
+      transition: 120ms all ease-in-out;
+    }
+
+    input[type="checkbox"]::before {
+      content: "";
+      width: 0.75em;
+      height: 0.75em;
+      transform: scale(0);
+      transition: 120ms transform ease-in-out;
+      box-shadow: inset 1em 1em white;
+      transform-origin: center;
+      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    }
+
+    input[type="checkbox"]:checked {
+      background-color: #FF4F00;
+      border-color: #FF4F00;
+    }
+
+    input[type="checkbox"]:checked::before {
+      transform: scale(1);
+    }
+
+    /* Print Optimization for A4 */
+    @page {
+      size: A4;
+      margin: 10mm 15mm;
+      /* Top/Bottom 10mm, Left/Right 15mm */
+    }
+
+    @media print {
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+      }
+
+      body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background-color: white;
+        transform: scale(0.9);
+        transform-origin: top left;
+        width: 111.11%;
+        /* Compensate for scale(0.9) to fill width: 100% / 0.9 = 111.11% */
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      /* Ensure gradients and backgrounds print */
+      * {
+        print-color-adjust: exact !important;
+      }
+
+      /* Prevent breaking inside checklist groups */
+      .break-inside-avoid {
+        break-inside: avoid;
+      }
+    }
+  </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0"
+  }
+}
+</script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+
+<body class="bg-gray-50 text-brand-black font-sans antialiased selection:bg-brand-orange selection:text-white">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>
