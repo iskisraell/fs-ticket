@@ -7,12 +7,15 @@ import {
     LayoutIcon, CheckIcon
 } from './PDFIcons';
 
+import RethinkSansMedium from '../assets/RethinkSans-Medium.ttf';
+import RethinkSansBold from '../assets/RethinkSans-Bold.ttf';
+
 // Register Rethink Sans font from design system
 Font.register({
     family: 'Rethink Sans',
     fonts: [
-        { src: '/assets/RethinkSans-Medium.ttf' },
-        { src: '/assets/RethinkSans-Bold.ttf', fontWeight: 'bold' }
+        { src: RethinkSansMedium },
+        { src: RethinkSansBold, fontWeight: 'bold' }
     ]
 });
 
