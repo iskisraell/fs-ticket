@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
         height: '100%',
         objectFit: 'contain',
         opacity: 0.9,
+        borderRadius: 11, // Parent 12 - Border 1
     },
     imageOverlay: {
         position: 'absolute',
@@ -202,7 +203,7 @@ const styles = StyleSheet.create({
     mapAddress: {
         fontSize: 10,
         fontWeight: 'bold',
-        color: '#111827',
+        color: colors.black,
     },
     mapSubAddress: {
         fontSize: 8,
@@ -237,7 +238,7 @@ const styles = StyleSheet.create({
     detailValue: {
         fontSize: 10,
         fontWeight: 'bold',
-        color: '#111827',
+        color: colors.black,
     },
     statusBadge: {
         backgroundColor: colors.green,
@@ -263,8 +264,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        borderTopLeftRadius: 12,
-        borderTopRightRadius: 12,
+        borderTopLeftRadius: 11, // Parent 12 - Border 1
+        borderTopRightRadius: 11, // Parent 12 - Border 1
     },
     checklistTitleRow: {
         flexDirection: 'row',
@@ -395,16 +396,19 @@ const styles = StyleSheet.create({
     galleryImage: {
         width: '100%',
         height: 100,
-        objectFit: 'contain',
+        objectFit: 'cover',
+        borderRadius: 6,
     },
     galleryCaption: {
         padding: 5,
         backgroundColor: 'white',
+        borderBottomLeftRadius: 7, // Parent 8 - Border 1
+        borderBottomRightRadius: 7, // Parent 8 - Border 1
     },
     galleryLabel: {
         fontSize: 8,
         fontWeight: 'bold',
-        color: '#1F2937',
+        color: colors.black,
     },
     footer: {
         marginTop: 30,
@@ -417,15 +421,25 @@ const styles = StyleSheet.create({
         fontSize: 8,
         color: '#9CA3AF',
     },
+    mapWatermarkHide: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        width: 140,
+        height: 30,
+        backgroundColor: '#fafaf6', // Blend with the map or just cover it
+        borderTopLeftRadius: 8,
+    },
 });
 
 interface Props {
     ticket: Ticket;
     showCorrection: boolean;
     logo: string;
+    qrCodeUrl?: string;
 }
 
-export const PDFDocument: React.FC<Props> = ({ ticket, showCorrection, logo }) => {
+export const PDFDocument: React.FC<Props> = ({ ticket, showCorrection, logo, qrCodeUrl }) => {
     const totalOccurrences = ticket.checklist.flatMap(g => g.items).filter(i => i.value).length;
 
     // Static Map URL (Yandex Maps as a reliable fallback for static images without key)
@@ -445,11 +459,12 @@ export const PDFDocument: React.FC<Props> = ({ ticket, showCorrection, logo }) =
                             <Text style={styles.headerTitle}>Relatório de Vistoria</Text>
                             <Text style={styles.headerSubtitle}>Eletromidia Field Service</Text>
                         </View>
+
                     </View>
                     <View style={styles.headerRight}>
                         <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-                            <View style={[styles.ticketIdBadge, { backgroundColor: '#F3F4F6', borderColor: '#E5E7EB' }]}>
-                                <Text style={[styles.ticketIdText, { color: '#4B5563' }]}>Nº ELT {ticket.eltNumber}</Text>
+                            <View style={[styles.ticketIdBadge, { backgroundColor: '#F3F4F6', borderColor: colors.black }]}>
+                                <Text style={[styles.ticketIdText, { color: colors.black }]}>Nº ELT {ticket.eltNumber}</Text>
                             </View>
                             <View style={styles.ticketIdBadge}>
                                 <Text style={styles.ticketIdText}>#{ticket.id}</Text>
@@ -463,7 +478,7 @@ export const PDFDocument: React.FC<Props> = ({ ticket, showCorrection, logo }) =
                 <View style={[styles.row, styles.section]} wrap={false}>
                     <View style={[styles.col, styles.card, styles.imageCard]}>
                         <Image
-                            src={ticket.photos.before[0]?.url || 'https://placehold.co/600x400?text=Sem+Foto'}
+                            src={ticket.initialPhoto || ticket.photos.before[0]?.url || 'https://placehold.co/600x400?text=Sem+Foto'}
                             style={styles.mainImage}
                         />
                         <View style={styles.badge}>
@@ -475,6 +490,7 @@ export const PDFDocument: React.FC<Props> = ({ ticket, showCorrection, logo }) =
                                 <Text style={styles.imageTitle}>{ticket.equipment.model}</Text>
                             </View>
                         </View>
+
                     </View>
 
                     <View style={[styles.col, styles.card, styles.mapCard]}>
@@ -487,6 +503,9 @@ export const PDFDocument: React.FC<Props> = ({ ticket, showCorrection, logo }) =
                             </View>
                         )}
 
+                        {/* Hide Yandex Watermark */}
+                        <View style={styles.mapWatermarkHide} />
+
                         <View style={styles.mapOverlay}>
                             <View style={styles.mapIconBox}>
                                 <MapPinIcon size={14} color={colors.orange} />
@@ -496,6 +515,11 @@ export const PDFDocument: React.FC<Props> = ({ ticket, showCorrection, logo }) =
                                 <Text style={styles.mapAddress}>{ticket.location.address}</Text>
                                 <Text style={styles.mapSubAddress}>{ticket.location.district} • {ticket.location.cep}</Text>
                             </View>
+                            {qrCodeUrl && (
+                                <View style={{ padding: 2, backgroundColor: 'white', borderRadius: 4, border: '1px solid #E5E7EB' }}>
+                                    <Image src={qrCodeUrl} style={{ width: 30, height: 30 }} />
+                                </View>
+                            )}
                         </View>
                     </View>
                 </View>
@@ -531,6 +555,7 @@ export const PDFDocument: React.FC<Props> = ({ ticket, showCorrection, logo }) =
                         <View style={styles.statusBadge}>
                             <Text style={styles.statusText}>{ticket.status}</Text>
                         </View>
+
                     </View>
                     <View style={{ width: '100%', marginTop: 5, paddingTop: 5, borderTopWidth: 1, borderTopColor: '#FFEDD5' }}>
                         <View style={styles.detailLabelRow}>
@@ -594,24 +619,31 @@ export const PDFDocument: React.FC<Props> = ({ ticket, showCorrection, logo }) =
                                                     </Text>
                                                     {item.value && (
                                                         <View style={styles.photoPlaceholderGrid}>
-                                                            <View style={[styles.photoPlaceholder, { borderColor: colors.orange }]}>
-                                                                <View style={styles.photoPlaceholderBadge}>
-                                                                    <Text style={[styles.photoPlaceholderText, { color: colors.orange }]}>Ocorrência (Antes)</Text>
+                                                            {/* Ocorrência (Antes) */}
+                                                            {item.photos?.before ? (
+                                                                <View style={[styles.photoPlaceholder, { borderColor: colors.orange, borderStyle: 'solid', borderRadius: 9 }]}>
+                                                                    <Image
+                                                                        src={item.photos.before}
+                                                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }}
+                                                                    />
+                                                                    <View style={[styles.photoPlaceholderBadge, { borderRadius: 4 }]}>
+                                                                        <Text style={[styles.photoPlaceholderText, { color: colors.orange }]}>Ocorrência (Antes)</Text>
+                                                                    </View>
                                                                 </View>
-                                                                <View style={styles.photoPlaceholderContent}>
-                                                                    <CameraIcon size={16} color="#9CA3AF" />
-                                                                </View>
-                                                            </View>
-                                                            {showCorrection && (
-                                                                <View style={[styles.photoPlaceholder, { borderColor: colors.green }]}>
-                                                                    <View style={styles.photoPlaceholderBadge}>
+                                                            ) : null}
+
+                                                            {/* Correção (Depois) */}
+                                                            {showCorrection && item.photos?.after ? (
+                                                                <View style={[styles.photoPlaceholder, { borderColor: colors.green, borderStyle: 'solid', borderRadius: 9 }]}>
+                                                                    <Image
+                                                                        src={item.photos.after}
+                                                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }}
+                                                                    />
+                                                                    <View style={[styles.photoPlaceholderBadge, { borderRadius: 4 }]}>
                                                                         <Text style={[styles.photoPlaceholderText, { color: colors.green }]}>Correção (Depois)</Text>
                                                                     </View>
-                                                                    <View style={styles.photoPlaceholderContent}>
-                                                                        <ImagePlusIcon size={16} color="#9CA3AF" />
-                                                                    </View>
                                                                 </View>
-                                                            )}
+                                                            ) : null}
                                                         </View>
                                                     )}
                                                 </View>
@@ -671,6 +703,7 @@ export const PDFDocument: React.FC<Props> = ({ ticket, showCorrection, logo }) =
                                 <Text style={{ fontSize: 10, color: '#9CA3AF', fontStyle: 'italic' }}>Nenhuma foto registrada.</Text>
                             )}
                         </View>
+
                     </View>
                 )}
 

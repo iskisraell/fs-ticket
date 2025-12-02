@@ -48,3 +48,17 @@ export interface Ticket {
     after: Photo[];
   };
 }
+
+export interface TicketPayload extends Omit<Ticket, 'checklist'> {
+  checklist?: {
+    title: string;
+    items: {
+      key: string;
+      value: boolean;
+      photos?: {
+        before?: string;
+        after?: string;
+      };
+    }[];
+  }[];
+}

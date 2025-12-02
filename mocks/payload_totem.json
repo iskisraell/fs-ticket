@@ -1,0 +1,77 @@
+{
+    "id": "919735",
+    "eltNumber": "20129888",
+    "type": "Totem",
+    "activityType": "Ruas - Manutenção Corretiva - Prefeitura",
+    "status": "Concluído",
+    "sla": "462h:51m",
+    "openDate": "02/10/2025 09:13",
+    "technician": "Felipe Pereira da Silva",
+    "initialPhoto": "https://picsum.photos/400/300?random=10",
+    "location": {
+        "address": "Rua Americo Brasiliense, 1966",
+        "district": "Santo Amaro",
+        "reference": "Em frente ao Shopping",
+        "cep": "04715-004",
+        "lat": -23.6305,
+        "lng": -46.7032
+    },
+    "equipment": {
+        "id": "T09888",
+        "model": "TOTEM MARROM",
+        "stopNumber": "720011650"
+    },
+    "checklist": [
+        {
+            "title": "Estrutura Totem",
+            "items": [
+                {
+                    "key": "TOTEM_COM_FERRUGEM",
+                    "value": true,
+                    "photos": {
+                        "before": "https://picsum.photos/400/300?random=103"
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Itinerário",
+            "items": [
+                {
+                    "key": "ITINERARIO_AUSENTE",
+                    "value": true
+                }
+            ]
+        },
+        {
+            "title": "Piso",
+            "items": [
+                {
+                    "key": "PISO_SUJO",
+                    "value": true
+                }
+            ]
+        }
+    ],
+    "photos": {
+        "before": [
+            {
+                "url": "https://picsum.photos/400/300?random=10",
+                "label": "Totem Geral",
+                "date": "21/10/2025 15:44"
+            },
+            {
+                "url": "https://picsum.photos/400/300?random=11",
+                "label": "Base Ferrugem",
+                "date": "21/10/2025 15:45"
+            }
+        ],
+        "after": [
+            {
+                "url": "https://picsum.photos/400/300?random=12",
+                "label": "Totem Finalizado",
+                "date": "21/10/2025 16:04"
+            }
+        ]
+    }
+}

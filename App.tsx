@@ -10,32 +10,69 @@ import {
   Info,
   Building2,
   FileText,
-  Hash
+  Hash,
+  Upload
 } from 'lucide-react';
-import { tickets } from './constants';
-import { Ticket } from './types';
+import { tickets as defaultTickets } from './constants';
+import { Ticket, TicketPayload } from './types';
+import { mergeTicket } from './utils';
 import { ChecklistGroup } from './components/ChecklistGroup';
 import { PhotoGallery } from './components/PhotoGallery';
 import logo from './assets/Eletromidia Horizontal (3).png';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { PDFDocument } from './components/PDFDocument';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import QRCode from 'qrcode';
 
 export default function App() {
-  const [currentTicketId, setCurrentTicketId] = useState<string>(tickets[0].id);
-  const [activeTicket, setActiveTicket] = useState<Ticket>(tickets[0]);
-  const [showCorrection, setShowCorrection] = useState(false);
+  const [allTickets, setAllTickets] = useState<Ticket[]>(() => {
+    const saved = localStorage.getItem('tickets');
+    return saved ? JSON.parse(saved) : defaultTickets;
+  });
 
-  const [debouncedTicket, setDebouncedTicket] = useState<Ticket>(tickets[0]);
+  const [currentTicketId, setCurrentTicketId] = useState<string>(allTickets[0].id);
+  const [activeTicket, setActiveTicket] = useState<Ticket>(allTickets[0]);
+  const [showCorrection, setShowCorrection] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+
+  const [debouncedTicket, setDebouncedTicket] = useState<Ticket>(allTickets[0]);
 
   useEffect(() => {
-    const found = tickets.find(t => t.id === currentTicketId);
+    localStorage.setItem('tickets', JSON.stringify(allTickets));
+  }, [allTickets]);
+
+  useEffect(() => {
+    const found = allTickets.find(t => t.id === currentTicketId);
     if (found) {
       const newTicket = JSON.parse(JSON.stringify(found));
       setActiveTicket(newTicket);
       setDebouncedTicket(newTicket);
     }
   }, [currentTicketId]);
+
+  // Generate QR Code when location changes
+  useEffect(() => {
+    const generateQR = async () => {
+      if (activeTicket.location.lat && activeTicket.location.lng) {
+        try {
+          const url = `https://www.google.com/maps/search/?api=1&query=${activeTicket.location.lat},${activeTicket.location.lng}`;
+          const qrDataUrl = await QRCode.toDataURL(url, {
+            width: 100,
+            margin: 0,
+            color: {
+              dark: '#000000',
+              light: '#FFFFFF'
+            }
+          });
+          setQrCodeUrl(qrDataUrl);
+        } catch (err) {
+          console.error('Error generating QR code:', err);
+        }
+      }
+    };
+
+    generateQR();
+  }, [activeTicket.location]);
 
   // Debounce PDF updates to prevent crashes during rapid checkbox toggling
   useEffect(() => {
@@ -47,9 +84,9 @@ export default function App() {
   }, [activeTicket]);
 
   const handleToggleChecklistItem = (groupTitle: string, itemKey: string) => {
-    setActiveTicket(prev => ({
-      ...prev,
-      checklist: prev.checklist.map(group =>
+    const updatedTicket = {
+      ...activeTicket,
+      checklist: activeTicket.checklist.map(group =>
         group.title === groupTitle
           ? {
             ...group,
@@ -61,7 +98,51 @@ export default function App() {
           }
           : group
       )
-    }));
+    };
+
+    setActiveTicket(updatedTicket);
+
+    // Update in allTickets list to persist changes
+    setAllTickets(prev => prev.map(t => t.id === updatedTicket.id ? updatedTicket : t));
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const json = e.target?.result as string;
+        const payload = JSON.parse(json) as TicketPayload;
+
+        // Basic validation
+        if (!payload.id || !payload.type) {
+          alert('Invalid JSON: Missing id or type');
+          return;
+        }
+
+        const newTicket = mergeTicket(payload);
+
+        setAllTickets(prev => {
+          // Check if ticket already exists and update it, or add new
+          const exists = prev.find(t => t.id === newTicket.id);
+          if (exists) {
+            return prev.map(t => t.id === newTicket.id ? newTicket : t);
+          }
+          return [...prev, newTicket];
+        });
+
+        setCurrentTicketId(newTicket.id);
+      } catch (err) {
+        console.error('Error parsing JSON:', err);
+        alert('Error parsing JSON file');
+      }
+    };
+    reader.readAsText(file);
+
+    // Reset input
+    event.target.value = '';
   };
 
 
@@ -85,14 +166,25 @@ export default function App() {
               onChange={(e) => setCurrentTicketId(e.target.value)}
               className="bg-gray-100 border-none rounded-btn text-sm font-medium px-3 py-2 cursor-pointer hover:bg-gray-200 transition-colors focus:ring-2 focus:ring-brand-orange outline-none"
             >
-              {tickets.map(t => (
+              {allTickets.map(t => (
                 <option key={t.id} value={t.id}>{t.type} - #{t.id}</option>
               ))}
             </select>
 
+            <label className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-btn hover:bg-gray-200 transition-colors cursor-pointer text-sm font-medium">
+              <Upload size={18} />
+              <span className="hidden sm:inline">Importar</span>
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </label>
+
             <ErrorBoundary>
               <PDFDownloadLink
-                document={<PDFDocument ticket={debouncedTicket} showCorrection={showCorrection} logo={logo} />}
+                document={<PDFDocument ticket={debouncedTicket} showCorrection={showCorrection} logo={logo} qrCodeUrl={qrCodeUrl} />}
                 fileName={`Relatorio_Vistoria_${debouncedTicket.id}.pdf`}
                 className="flex items-center gap-2 px-4 py-2 bg-brand-black text-white rounded-btn hover:bg-gray-800 transition-colors shadow-brand text-decoration-none"
               >
@@ -106,7 +198,7 @@ export default function App() {
             </ErrorBoundary>
           </div>
         </div>
-      </nav>
+      </nav >
 
       <main className="max-w-5xl mx-auto p-4 sm:p-8 space-y-6 print:p-0 print:space-y-4 print:max-w-none print:w-full">
 
@@ -165,27 +257,35 @@ export default function App() {
                 /* Adjusted bbox for much closer zoom (approx 0.001 delta instead of 0.005) */
                 src={`https://www.openstreetmap.org/export/embed.html?bbox=${activeTicket.location.lng! - 0.001}%2C${activeTicket.location.lat! - 0.001}%2C${activeTicket.location.lng! + 0.001}%2C${activeTicket.location.lat! + 0.001}&layer=mapnik&marker=${activeTicket.location.lat}%2C${activeTicket.location.lng}`}
                 className="w-full h-full grayscale-[20%] contrast-[1.1]"
-              ></iframe>
+              ></iframe >
             ) : (
               <div className="flex items-center justify-center h-full text-gray-400 bg-gray-200">
                 <span className="flex items-center gap-2"><MapPin /> Mapa não disponível</span>
               </div>
-            )}
-            <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur px-4 py-3 rounded-xl shadow-brand border border-gray-100 flex items-start gap-3">
-              <div className="bg-brand-orange/10 p-2 rounded-lg text-brand-orange shrink-0">
-                <MapPin size={18} />
+            )
+            }
+            <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur px-4 py-3 rounded-xl shadow-brand border border-gray-100 flex items-center justify-between gap-3">
+              <div className="flex items-start gap-3 min-w-0">
+                <div className="bg-brand-orange/10 p-2 rounded-lg text-brand-orange shrink-0">
+                  <MapPin size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-0.5">Localização</p>
+                  <p className="text-sm font-bold text-gray-900 truncate">{activeTicket.location.address}</p>
+                  <p className="text-xs text-gray-500 truncate">{activeTicket.location.district} • {activeTicket.location.cep}</p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-0.5">Localização</p>
-                <p className="text-sm font-bold text-gray-900 truncate">{activeTicket.location.address}</p>
-                <p className="text-xs text-gray-500 truncate">{activeTicket.location.district} • {activeTicket.location.cep}</p>
-              </div>
+              {qrCodeUrl && (
+                <div className="shrink-0 bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
+                  <img src={qrCodeUrl} alt="QR Code Localização" className="w-12 h-12" />
+                </div>
+              )}
             </div>
-          </div>
-        </div>
+          </div >
+        </div >
 
         {/* Ticket Details Bar - Design System: Cream Background */}
-        <div className="bg-brand-cream rounded-brand shadow-none border border-orange-100 p-6 print:p-4 print:rounded-xl">
+        < div className="bg-brand-cream rounded-brand shadow-none border border-orange-100 p-6 print:p-4 print:rounded-xl" >
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6 print:gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-brand-orange font-bold text-xs uppercase tracking-wider">
@@ -230,10 +330,10 @@ export default function App() {
               <p className="font-medium text-gray-800 text-sm">{activeTicket.activityType}</p>
             </div>
           </div>
-        </div>
+        </div >
 
         {/* Checklist Section */}
-        <div className="bg-white rounded-brand shadow-brand border border-gray-100 overflow-hidden print:shadow-none print:border-2 print:border-gray-200">
+        < div className="bg-white rounded-brand shadow-brand border border-gray-100 overflow-hidden print:shadow-none print:border-2 print:border-gray-200" >
           <div className="bg-brand-black text-white px-8 py-5 flex items-center justify-between print:bg-brand-black print:text-white print:border-b print:border-gray-300">
             <h2 className="font-bold text-xl flex items-center gap-3">
               <CheckCircle2 className="text-brand-orange" size={24} />
@@ -264,10 +364,10 @@ export default function App() {
               />
             ))}
           </div>
-        </div>
+        </div >
 
         {/* Photos Section */}
-        <div className="space-y-8 print:break-before-page">
+        < div className="space-y-8 print:break-before-page" >
           <div className="flex items-center gap-3 border-b-2 border-brand-orange pb-3">
             <div className="bg-brand-orange text-white p-1.5 rounded-lg">
               <Building2 size={24} />
@@ -294,17 +394,17 @@ export default function App() {
               </div>
             )}
           </div>
-        </div>
+        </div >
 
         {/* Footer Signature */}
-        <div className="mt-16 pt-8 border-t border-gray-200 text-center space-y-4 print:mt-12 print:break-inside-avoid">
+        < div className="mt-16 pt-8 border-t border-gray-200 text-center space-y-4 print:mt-12 print:break-inside-avoid" >
 
           <div className="pt-8 text-xs text-gray-400 font-mono">
             Eletromidia Field Service System • v1.0.0
           </div>
-        </div>
+        </div >
 
-      </main>
-    </div>
+      </main >
+    </div >
   );
 }

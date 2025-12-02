@@ -13,10 +13,10 @@ Para integrar dados reais, o sistema espera um objeto JSON que siga a interface 
 ### Interface `Ticket`
 
 ```typescript
-interface Ticket {
+interface TicketPayload {
   id: string;             // ID único do ticket (ex: "1020025")
   eltNumber: string;      // Número ELT (ex: "20121137")
-  type: 'Abrigo' | 'Totem'; // Tipo do ativo
+  type: 'Abrigo' | 'Totem'; // Tipo do ativo (Define o template de checklist usado)
   activityType: string;   // Tipo de atividade (ex: "Manutenção Corretiva")
   status: string;         // Status do ticket (ex: "Concluído")
   sla: string;            // Tempo de SLA (ex: "00h:48m")
@@ -36,7 +36,18 @@ interface Ticket {
     model: string;        // Modelo do equipamento
     stopNumber: string;   // Código SPTrans/Parada
   };
-  checklist: ChecklistGroup[]; // Lista de grupos de verificação
+  // Checklist é opcional e "esparso". Apenas itens com value: true precisam ser enviados.
+  checklist?: {
+    title: string;        // Título do grupo (Deve corresponder ao template)
+    items: {
+      key: string;        // Chave única do item (Deve corresponder ao template)
+      value: boolean;     // true = problema identificado
+      photos?: {          // Fotos específicas do item
+        before?: string;
+        after?: string;
+      };
+    }[];
+  }[];
   photos: {
     before: Photo[];      // Fotos do "Antes"
     after: Photo[];       // Fotos do "Depois"
@@ -128,10 +139,8 @@ Para alimentar o sistema a partir de uma planilha Excel ou CSV, recomenda-se o s
     {
       "title": "Elétrica",
       "items": [
-        { "key": "ELETRICA_FIACAO_EXPOSTA", "label": "Fiação Exposta", "value": false },
         { 
           "key": "ELETRICA_LUMINARIA_DANIFICADA", 
-          "label": "Luminária Danificada", 
           "value": true,
           "photos": {
             "before": "https://picsum.photos/400/300?random=101",
@@ -149,6 +158,15 @@ Para alimentar o sistema a partir de uma planilha Excel ou CSV, recomenda-se o s
   }
 }
 ```
+
+## 📥 Importando Tickets (JSON)
+
+A aplicação agora suporta a importação de tickets via arquivo JSON diretamente na interface.
+
+1.  Clique no botão **"Importar"** na barra superior.
+2.  Selecione um arquivo `.json` formatado conforme o exemplo acima.
+3.  O ticket será carregado, mesclado com o template correspondente (Abrigo ou Totem) e salvo no armazenamento local do navegador.
+
 
 ## 🛠️ Como Atualizar os Dados (Desenvolvimento)
 
